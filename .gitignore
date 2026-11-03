@@ -1,15 +1,56 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Gradle and Kotlin caches
+.gradle/
+.kotlin/
+
+# Build outputs (all modules)
+build/
+.externalNativeBuild/
+.cxx/
+captures/
+*.apk
+*.aab
+*.apks
+*.dex
+/app/release/
+
+# Machine-specific Android SDK configuration
 local.properties
+
+# Android Studio / IntelliJ local files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Other editor settings and temporary files
+.vscode/
+.zed/
+*.swp
+*.swo
+*~
+
+# Signing keys and local signing configuration
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# Local environment files; keep sanitized examples shareable
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs and JVM crash / heap dumps
+*.log
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# Operating-system files
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# Keep Gradle wrapper files, version catalogs, and shared build configuration tracked.
