@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Minimal Launcher</string>
+    <string name="choose_favorites">Choose your favorite apps</string>
+    <string name="choose_favorites_description">Select the apps you want on your home screen, then tap Save.</string>
+    <string name="save_favorites">Save</string>
+    <string name="edit_favorites">Edit favorites</string>
+    <string name="loading_apps">Loading apps…</string>
+    <string name="no_apps">No launchable apps found.</string>
+    <string name="no_favorites">Hold empty space for 2 seconds, then choose Edit favorites in Settings.</string>
+    <string name="app_unavailable">This app is no longer available.</string>
+    <string name="support_roadw2k">Support Roadw2k — Buy me a coffee</string>
+    <string name="support_link_unavailable">No app is available to open the support page.</string>
+    <string name="all_apps">All apps</string>
+
+    <string name="appearance">Appearance</string>
+    <string name="favorite_font_size">App font size</string>
+    <string name="favorite_font_size_value">App font size: %1$d sp</string>
+    <string name="open_all_apps">Open all apps</string>
+</resources>
