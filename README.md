@@ -1,4 +1,7 @@
-# Minimal Launcher
+<img src="screenshots/Minimal_Launcher.png" alt="launcherIcon" width="50"/>
+
+# Minimal Launcher 
+
 
 An Android launcher that keeps things simple: your favorite apps on the right, widgets on the left, and the rest of your apps a swipe away.
 
