@@ -112,6 +112,10 @@ Source files are under `app/src/main/java/com/roadw2k/minimallauncher/`:
 
 Launcher icons live in `app/src/main/res/drawable*` and `app/src/main/res/mipmap-*`, including adaptive and themed icon resources.
 
+## License
+
+Licensed under the [MIT License](LICENSE).
+
 ## Contact and links
 
 - **Email:** [jasongregg256@gmail.com](mailto:jasongregg256@gmail.com)
