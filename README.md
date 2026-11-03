@@ -4,6 +4,12 @@ An Android launcher that keeps things simple: your favorite apps on the right, w
 
 App names replace the usual grid of icons. Pick what belongs on your home screen, choose a background, and leave the rest out of the way.
 
+## Screenshots
+
+| Home | Settings | Customization |
+| --- | --- | --- |
+| ![Home screen](screenshots/home.png) | ![Settings](screenshots/settings.png) | ![Customization](screenshots/customization.png) |
+
 ## Using it
 
 On first launch, select your favorite apps and tap **Save**. To make it your home screen, choose **Minimal Launcher** in Android's default home app settings. The exact menu varies by device, but it's usually under **Settings → Apps → Default apps → Home app**.
