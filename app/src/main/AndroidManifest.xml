@@ -29,6 +29,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MinimalLauncher">
+        <meta-data
+            android:name="com.roadw2k.minimallauncher.DEVELOPER_EMAIL"
+            android:value="info@roadw2k.com" />
+        <meta-data
+            android:name="com.roadw2k.minimallauncher.PROJECT_URL"
+            android:value="https://github.com/Roadw2k/Minimal-Launcher" />
+        <meta-data
+            android:name="com.roadw2k.minimallauncher.DEVELOPER_WEBSITE"
+            android:value="https://roadw2k.com" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

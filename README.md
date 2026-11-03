@@ -112,6 +112,12 @@ Source files are under `app/src/main/java/com/roadw2k/minimallauncher/`:
 
 Launcher icons live in `app/src/main/res/drawable*` and `app/src/main/res/mipmap-*`, including adaptive and themed icon resources.
 
+## Contact and links
+
+- **Email:** [jasongregg256@gmail.com](mailto:jasongregg256@gmail.com)
+- **GitHub:** [Roadw2k/Minimal-Launcher](https://github.com/Roadw2k/Minimal-Launcher)
+- **Personal website:** [roadw2k.com](https://roadw2k.com)
+
 ## Support
 
 If you find the launcher useful, you can [buy Roadw2k a coffee](https://buymeacoffee.com/roadw2k). The same link is available in Settings.
