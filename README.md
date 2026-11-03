@@ -69,8 +69,10 @@ From the project root:
 The debug APK is written to:
 
 ```text
-app/build/outputs/apk/debug/app-debug.apk
+app/build/outputs/apk/debug/MinimalLauncher-1.0-debug.apk
 ```
+
+APK names include the version from `app/build.gradle.kts` and the build variant. For example, `assembleRelease` produces `app/build/outputs/apk/release/MinimalLauncher-1.0-release.apk`. Release builds still need signing before installation or distribution; naming the APK does not sign it.
 
 With a device or emulator connected:
 
