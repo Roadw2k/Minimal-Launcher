@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Minimal Launcher</string>
     <string name="choose_favorites">Choose your favorite apps</string>
-    <string name="choose_favorites_description">Select the apps you want on your home screen, then tap Save.</string>
+    <string name="choose_favorites_description">Select your apps, drag the handles to arrange them, then tap Save.</string>
     <string name="save_favorites">Save</string>
     <string name="edit_favorites">Edit favorites</string>
     <string name="loading_apps">Loading apps…</string>
@@ -16,4 +16,19 @@
     <string name="favorite_font_size">App font size</string>
     <string name="favorite_font_size_value">App font size: %1$d sp</string>
     <string name="open_all_apps">Open all apps</string>
+    <string name="home_layout">Home screen layout</string>
+    <string name="favorites_left_widgets_right">Apps on the left</string>
+    <string name="favorites_right_widgets_left">Apps on the right</string>
+    <string name="app_drawer_alignment">App drawer alignment</string>
+    <string name="position_left">Left</string>
+    <string name="position_center">Center</string>
+    <string name="position_right">Right</string>
+    <string name="widget_layout_help">Widgets appear opposite your favorite apps. Add up to five widgets, then use Edit widgets to move, resize, or remove them.</string>
+    <string name="favorite_order_help">Selected apps appear first, in home screen order. Touch and drag a handle to move an app.</string>
+    <string name="move_favorite_up">Move %1$s up</string>
+    <string name="move_favorite_down">Move %1$s down</string>
+    <string name="drag_favorite">Drag to reorder %1$s</string>
+    <string name="search_apps">Search apps</string>
+    <string name="clear_search">Clear</string>
+    <string name="no_matching_apps">No apps match your search.</string>
 </resources>

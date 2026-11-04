@@ -28,7 +28,11 @@ The home screen and drawer follow your finger as you swipe. Android's navigation
 
 ### Favorites and text
 
-Use **Edit favorites** in Settings to change the apps shown on the home screen. The drawer keeps the full list of launchable apps sorted alphabetically.
+Use **Edit favorites** in Settings to select home screen apps and arrange them by touching and dragging the handle beside each selected app. No long press is needed; dragging near the list edges scrolls automatically. TalkBack users can use the handle’s Move up and Move down actions. Selected apps appear first in home screen order; tap **Save** to apply your changes. Existing favorites keep their alphabetical order until you rearrange them.
+
+The app drawer stays alphabetical. Tap **Search apps** to filter names as you type; search ignores case and works entirely on-device. Use **Clear** to show all apps again. Closing the drawer clears the search, and opening it does not automatically show the keyboard.
+
+In **Settings → General**, use **Home screen layout** to swap favorites and widgets. Use **App drawer alignment** to place drawer app names on the left, center, or right. Both choices save immediately; swipe directions stay the same. Widgets keep their saved positions within their side of the screen.
 
 The **Appearance** tab lets you change app-name colors and font size, with a preview before saving. Black text switches to white on a solid black background, and white text switches to black on a solid white background. Your saved color choice isn't overwritten.
 

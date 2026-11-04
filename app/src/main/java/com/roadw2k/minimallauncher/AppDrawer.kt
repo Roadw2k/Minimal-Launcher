@@ -1,6 +1,16 @@
 package com.roadw2k.minimallauncher
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +41,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+internal fun filterDrawerApps(apps: List<LauncherApp>, query: String): List<LauncherApp> {
+    val search = query.trim()
+    return if (search.isEmpty()) apps else apps.filter { it.label.contains(search, ignoreCase = true) }
+}
+
+internal enum class DrawerAlignment(val preferenceValue: String) {
+    LEFT("left"), CENTER("center"), RIGHT("right");
+
+    companion object {
+        fun fromPreference(value: String?): DrawerAlignment =
+            entries.firstOrNull { it.preferenceValue == value } ?: RIGHT
+    }
+}
+
 @Composable
 internal fun RightEdgeDrawerHandle(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val callback by rememberUpdatedState(onOpen)
@@ -54,30 +78,59 @@ internal fun AppDrawer(
     onLaunch: (LauncherApp) -> Unit,
     textColor: Color,
     fontSize: Int,
-    modifier: Modifier = Modifier
+    alignment: DrawerAlignment = DrawerAlignment.RIGHT,
+    modifier: Modifier = Modifier,
+    isOpen: Boolean = true
 ) {
-    Column(modifier.fillMaxSize()) {
+    var query by rememberSaveable { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    val listState = rememberLazyListState()
+    val filteredApps = remember(apps, query) { filterDrawerApps(apps.orEmpty(), query) }
+    LaunchedEffect(isOpen) {
+        if (!isOpen) {
+            query = ""
+            focusManager.clearFocus()
+        }
+    }
+    LaunchedEffect(query) { listState.scrollToItem(0) }
+    Column(modifier.fillMaxSize().imePadding()) {
         Text(
             stringResource(R.string.all_apps),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(24.dp)
         )
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text(stringResource(R.string.search_apps)) },
+            singleLine = true,
+            trailingIcon = if (query.isNotEmpty()) ({
+                TextButton(onClick = { query = "" }) { Text(stringResource(R.string.clear_search)) }
+            }) else null,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)
+        )
         LazyColumn(
+            state = listState,
             modifier = Modifier.weight(1f).fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.End,
+            horizontalAlignment = alignment.horizontalAlignment,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (apps == null || apps.isEmpty()) {
+            if (apps == null || filteredApps.isEmpty()) {
                 item {
                     Text(
-                        stringResource(if (apps == null) R.string.loading_apps else R.string.no_apps),
-                        color = textColor
+                        stringResource(when {
+                                                    apps == null -> R.string.loading_apps
+                                                    apps.isEmpty() -> R.string.no_apps
+                                                    else -> R.string.no_matching_apps
+                                                }),
+                        color = textColor,
+                        textAlign = alignment.textAlign
                     )
                 }
             }
-            items(apps.orEmpty(), key = { it.id }, contentType = { "app_text" }) { app ->
-                LauncherAppText(app, textColor, fontSize, onLaunch)
+            items(filteredApps, key = { it.id }, contentType = { "app_text" }) { app ->
+                LauncherAppText(app, textColor, fontSize, onLaunch, textAlign = alignment.textAlign)
             }
         }
     }
@@ -88,7 +141,8 @@ internal fun LauncherAppText(
     app: LauncherApp,
     textColor: Color,
     fontSize: Int,
-    onLaunch: (LauncherApp) -> Unit
+    onLaunch: (LauncherApp) -> Unit,
+    textAlign: TextAlign = TextAlign.End
 ) {
     Text(
         text = app.label,
@@ -96,7 +150,7 @@ internal fun LauncherAppText(
         style = MaterialTheme.typography.headlineSmall,
         fontSize = fontSize.sp,
         lineHeight = (fontSize * 4f / 3f).sp,
-        textAlign = TextAlign.End,
+        textAlign = textAlign,
         modifier = Modifier.sizeIn(minHeight = 48.dp)
             .clickable(role = Role.Button) { onLaunch(app) }
             .padding(vertical = 8.dp)
