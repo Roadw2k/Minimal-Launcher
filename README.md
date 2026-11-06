@@ -9,9 +9,9 @@ App names replace the usual grid of icons. Pick what belongs on your home screen
 
 ## Screenshots
 
-| Home | Settings | Customization |
-| --- | --- | --- |
-| ![Home screen](screenshots/home.png) | ![Settings](screenshots/settings.png) | ![Customization](screenshots/customization.png) |
+| Home | Settings | Customization | Usage | App Drawer |
+| --- | --- | --- | --- | --- |
+| ![Home screen](screenshots/home.png) | ![Settings](screenshots/settings1.png) | ![Customization](screenshots/customization.png) | ![Usage](screenshots/usage.png) | ![App Drawer](screenshots/appdrawer.png) |
 
 ## Using it
 
