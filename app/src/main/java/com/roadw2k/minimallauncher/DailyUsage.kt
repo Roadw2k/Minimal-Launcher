@@ -106,12 +106,12 @@ internal fun sortDailyUsage(apps: List<DailyUsageApp>): List<DailyUsageApp> = ap
         .thenBy { it.label.lowercase(Locale.ROOT) }.thenBy { it.label }.thenBy { it.packageName }
 )
 
-internal fun formatUsageDuration(millis: Long): String {
+internal fun formatUsageDuration(millis: Long, includeHours: Boolean = false): String {
     val seconds = millis.coerceAtLeast(0) / 1000
     val minutes = seconds / 60
     return when {
-        seconds < 60 -> "${seconds}s"
-        minutes < 60 -> "${minutes}m"
+        seconds < 60 -> "<1m"
+        minutes < 60 && !includeHours -> "${minutes}m"
         else -> "${minutes / 60}h ${minutes % 60}m"
     }
 }
@@ -228,8 +228,14 @@ internal fun DailyUsagePage(textColor: Color, fontSize: Int, cache: DailyUsageCa
     val context = LocalContext.current
     var settingsError by remember { mutableStateOf<String?>(null) }
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Daily usage", color = textColor, fontSize = (fontSize + 4).sp)
         val current = cache.snapshot
+        val heading = if (current != null && current.allowed && current.error == null) {
+            val total = current.apps.sumOf { it.durationMillis }
+            "Daily usage - ${formatUsageDuration(total, includeHours = true)}"
+        } else {
+            "Daily usage"
+        }
+        Text(heading, color = textColor, fontSize = (fontSize + 4).sp)
         when {
             current == null -> Text("Loading usage…", color = textColor, fontSize = fontSize.sp)
             !current.allowed -> {

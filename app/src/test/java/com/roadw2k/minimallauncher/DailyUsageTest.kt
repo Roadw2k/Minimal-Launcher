@@ -76,8 +76,12 @@ class DailyUsageTest {
     }
 
     @Test fun durationsAreNonnegativeAndReadable() {
-        assertEquals("0s", formatUsageDuration(-1))
-        assertEquals("59s", formatUsageDuration(59_999))
+        assertEquals("<1m", formatUsageDuration(-1))
+        assertEquals("<1m", formatUsageDuration(0))
+        assertEquals("<1m", formatUsageDuration(59_999))
+        assertEquals("<1m", formatUsageDuration(59_999, includeHours = true))
+        assertEquals("0h 1m", formatUsageDuration(60_000, includeHours = true))
+        assertEquals("2h 15m", formatUsageDuration(8_100_000, includeHours = true))
         assertEquals("1m", formatUsageDuration(60_000))
         assertEquals("1h 1m", formatUsageDuration(3_660_000))
         assertEquals("25h 0m", formatUsageDuration(90_000_000))
