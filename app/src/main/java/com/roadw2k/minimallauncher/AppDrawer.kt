@@ -56,11 +56,14 @@ internal enum class DrawerAlignment(val preferenceValue: String) {
 }
 
 @Composable
-internal fun RightEdgeDrawerHandle(onOpen: () -> Unit, modifier: Modifier = Modifier) {
+internal fun RightEdgeDrawerHandle(
+    onOpen: () -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = stringResource(R.string.open_all_apps)
+) {
     val callback by rememberUpdatedState(onOpen)
-    val label = stringResource(R.string.open_all_apps)
     // Android limits Back-gesture exclusions to 200 dp per edge. Leave bottom system
-    // navigation untouched and reserve only the middle-right home-screen margin.
+    // navigation untouched and reserve only the middle home-screen edge margin.
     Box(
         modifier.width(24.dp).height(200.dp)
             .systemGestureExclusion()

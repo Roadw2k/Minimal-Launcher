@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
     <!-- Widget hosts declare this permission, but non-system apps still need the
          user's approval through ACTION_APPWIDGET_BIND before binding a widget. -->
     <uses-permission

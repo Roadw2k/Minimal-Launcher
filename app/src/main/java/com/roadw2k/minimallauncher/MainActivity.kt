@@ -231,7 +231,9 @@ class MainActivity : ComponentActivity() {
                 var selectedIds by rememberSaveable { mutableStateOf(savedIds.toList()) }
                 var draftOrderInitialized by rememberSaveable { mutableStateOf(false) }
                 var settings by rememberSaveable { mutableStateOf(false) }
-                var drawerOpen by rememberSaveable { mutableStateOf(false) }
+                var launcherPage by rememberSaveable { mutableIntStateOf(1) }
+                val drawerOpen = launcherPage == 2
+                val dailyUsageCache = rememberDailyUsageCache()
 
                 var settingsTab by rememberSaveable { mutableIntStateOf(0) }
                 var editingWidgets by rememberSaveable { mutableStateOf(false) }
@@ -252,7 +254,7 @@ class MainActivity : ComponentActivity() {
                 val contentLayoutDirection = LocalLayoutDirection.current
                 LaunchedEffect(homeRequest) {
                     if (homeRequest > 0) {
-                        drawerOpen = false
+                        launcherPage = 1
                         settings = false
                         editingWidgets = false
                         settingsTab = 0
@@ -263,7 +265,7 @@ class MainActivity : ComponentActivity() {
                 }
                 LaunchedEffect(widgets.editRequested) {
                     if (widgets.editRequested) {
-                        drawerOpen = false
+                        launcherPage = 1
                         editing = false
                         settings = true
                         settingsTab = 0
@@ -305,9 +307,9 @@ class MainActivity : ComponentActivity() {
                     normalizeFavoriteOrder(savedIds, savedOrder, apps.orEmpty()).mapNotNull(appsById::get)
                 }
                 // At the default home screen, consume Back instead of finishing the launcher.
-                BackHandler(enabled = isDefaultHome || (configured && (editing || settings || editingWidgets || drawerOpen))) {
+                BackHandler(enabled = isDefaultHome || (configured && (editing || settings || editingWidgets || launcherPage != 1))) {
                     when {
-                        drawerOpen -> drawerOpen = false
+                        launcherPage != 1 -> launcherPage = 1
                         editing && configured -> editing = false
                         editingWidgets -> editingWidgets = false
                         settingsTab != 0 -> settingsTab = 0
@@ -508,16 +510,24 @@ class MainActivity : ComponentActivity() {
                             launcherBackground.Editor()
                             }
                         }
-
+                        val versionName = remember {
+                            packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
+                        }
+                        Text(
+                            text = "Version $versionName",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.align(AbsoluteAlignment.Left)
+                                .padding(horizontal = 24.dp, vertical = 12.dp)
+                        )
                         }
                     } else {
-                        val pagerState = rememberPagerState(initialPage = if (drawerOpen) 1 else 0) { 2 }
-                        LaunchedEffect(drawerOpen) {
-                            pagerState.animateScrollToPage(if (drawerOpen) 1 else 0)
+                        val pagerState = rememberPagerState(initialPage = launcherPage) { 3 }
+                        LaunchedEffect(launcherPage) {
+                            pagerState.animateScrollToPage(launcherPage)
                         }
                         LaunchedEffect(pagerState) {
                             snapshotFlow { pagerState.settledPage }.drop(1).collect { page ->
-                                drawerOpen = page == 1
+                                launcherPage = page
                             }
                         }
                         HorizontalPager(
@@ -525,7 +535,11 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             beyondViewportPageCount = 1
                         ) { page ->
-                        if (page == 1) {
+                        if (page == 0) {
+                            Box(Modifier.fillMaxSize().padding(padding)) {
+                                DailyUsagePage(favoriteColor, fontSize, dailyUsageCache)
+                            }
+                        } else if (page == 2) {
                         AppDrawer(
                             apps = apps,
                             textColor = favoriteColor,
@@ -533,7 +547,7 @@ class MainActivity : ComponentActivity() {
                             alignment = drawerAlignment,
                             isOpen = drawerOpen,
                             onLaunch = { app ->
-                                drawerOpen = false
+                                launcherPage = 1
                                 launchApp(app)
                             },
 
@@ -582,7 +596,12 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             RightEdgeDrawerHandle(
-                                onOpen = { drawerOpen = true },
+                                onOpen = { launcherPage = 0 },
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                label = "Open daily usage"
+                            )
+                            RightEdgeDrawerHandle(
+                                onOpen = { launcherPage = 2 },
                                 modifier = Modifier.align(Alignment.CenterEnd)
                             )
                         }
