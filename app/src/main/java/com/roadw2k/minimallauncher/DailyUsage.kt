@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -227,6 +229,52 @@ internal fun rememberDailyUsageCache(): DailyUsageCache {
 internal fun DailyUsagePage(textColor: Color, fontSize: Int, cache: DailyUsageCache) {
     val context = LocalContext.current
     var settingsError by remember { mutableStateOf<String?>(null) }
+    var showUsagePrompt by remember { mutableStateOf(false) }
+    if (showUsagePrompt) {
+        AlertDialog(
+            onDismissRequest = { showUsagePrompt = false },
+            title = { Text("Allow usage access", color = textColor, fontSize = (fontSize + 4).sp) },
+            text = {
+                Column(
+                    Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        "Minimal Launcher needs usage access to calculate how long you use each app today. " +
+                            "Usage data is processed on your device and isn't uploaded. " +
+                            "The rest of the launcher works without this access.",
+                        color = textColor, fontSize = fontSize.sp
+                    )
+                    Text(
+                        "Tap Continue, select Minimal Launcher, and enable usage access.\n\n" +
+                            "If Android blocks access with a restricted-settings warning, open " +
+                            "Settings → Apps → Minimal Launcher → three-dot menu → Allow restricted settings. " +
+                            "Then return to Usage access and try again. Menu names vary by device.",
+                        color = textColor, fontSize = fontSize.sp
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showUsagePrompt = false
+                    try {
+                        context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        settingsError = null
+                    } catch (_: android.content.ActivityNotFoundException) {
+                        settingsError = "Usage access settings are unavailable on this device."
+                    } catch (_: SecurityException) {
+                        settingsError = "Unable to open usage access settings."
+                    }
+                }) { Text("Continue", color = textColor, fontSize = fontSize.sp) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUsagePrompt = false }) {
+                    Text("Not now", color = textColor, fontSize = fontSize.sp)
+                }
+            }
+        )
+    }
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         val current = cache.snapshot
         val heading = if (current != null && current.allowed && current.error == null) {
@@ -240,17 +288,9 @@ internal fun DailyUsagePage(textColor: Color, fontSize: Int, cache: DailyUsageCa
             current == null -> Text("Loading usage…", color = textColor, fontSize = fontSize.sp)
             !current.allowed -> {
                 Text("Allow usage access to see today's app usage.", color = textColor, fontSize = fontSize.sp)
-                TextButton(onClick = {
-                    try {
-                        context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                        settingsError = null
-                    } catch (_: android.content.ActivityNotFoundException) {
-                        settingsError = "Usage access settings are unavailable on this device."
-                    } catch (_: SecurityException) {
-                        settingsError = "Unable to open usage access settings."
-                    }
-                }) { Text("Open usage access settings", color = textColor, fontSize = fontSize.sp) }
+                TextButton(onClick = { showUsagePrompt = true }) {
+                    Text("Open usage access settings", color = textColor, fontSize = fontSize.sp)
+                }
                 settingsError?.let { Text(it, color = textColor, fontSize = fontSize.sp) }
             }
             current.error != null -> Text(current.error, color = textColor, fontSize = fontSize.sp)

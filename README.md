@@ -123,12 +123,6 @@ Launcher icons live in `app/src/main/res/drawable*` and `app/src/main/res/mipmap
 
 Licensed under the [MIT License](LICENSE).
 
-## Contact and links
-
-- **Email:** [jasongregg256@gmail.com](mailto:jasongregg256@gmail.com)
-- **GitHub:** [Roadw2k/Minimal-Launcher](https://github.com/Roadw2k/Minimal-Launcher)
-- **Personal website:** [roadw2k.com](https://roadw2k.com)
-
 ## Support
 
-If you find the launcher useful, you can [buy Roadw2k a coffee](https://buymeacoffee.com/roadw2k). The same link is available in Settings.
+If you find the launcher useful, you can [buy Roadw2k a coffee](https://buymeacoffee.com/roadw2k).
