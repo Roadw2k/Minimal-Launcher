@@ -51,6 +51,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -205,7 +206,7 @@ class MainActivity : ComponentActivity() {
         isDefaultHome = updateLauncherSystemBars()
         val preferences = getSharedPreferences("favorites", MODE_PRIVATE)
         setContent {
-            val solidBackground = if (launcherBackground.hasPhoto) null else launcherBackground.savedColor.color
+            val solidBackground = if (launcherBackground.hasPhoto) null else launcherBackground.solidColor
             MinimalLauncherTheme(
                 darkTheme = when (solidBackground) {
                     Color.Black -> true
@@ -239,6 +240,10 @@ class MainActivity : ComponentActivity() {
                 var editingWidgets by rememberSaveable { mutableStateOf(false) }
                 var draftColor by rememberSaveable { mutableIntStateOf(preferences.getInt("text_color", 0)) }
                 var textColor by remember { mutableIntStateOf(preferences.getInt("text_color", 0)) }
+                                var customTextColor by remember {
+                                    mutableStateOf(if (preferences.contains("custom_text_color")) preferences.getInt("custom_text_color", 0) else null)
+                                }
+                                var draftCustomColor by rememberSaveable { mutableStateOf(customTextColor) }
                 var fontSize by remember {
                     mutableIntStateOf(preferences.getInt("favorite_font_size", 20).coerceIn(14, 36))
                 }
@@ -259,6 +264,7 @@ class MainActivity : ComponentActivity() {
                         editingWidgets = false
                         settingsTab = 0
                         draftColor = textColor
+                        draftCustomColor = customTextColor
                         draftFontSize = fontSize
                         if (configured) editing = false
                     }
@@ -274,7 +280,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 val favoriteColor = contrastingTextColor(
-                    favoriteColors.getOrNull(textColor)?.second ?: MaterialTheme.colorScheme.onBackground,
+                    customTextColor?.let { Color(it) } ?: favoriteColors.getOrNull(textColor)?.second ?: MaterialTheme.colorScheme.onBackground,
                     solidBackground
                 )
                 val apps by produceState<List<LauncherApp>?>(initialValue = null, refresh) {
@@ -387,6 +393,7 @@ class MainActivity : ComponentActivity() {
                                 Tab(selected = settingsTab == 1, onClick = {
                                     if (settingsTab != 1) {
                                         draftColor = textColor
+                                        draftCustomColor = customTextColor
                                         draftFontSize = fontSize
                                     }
                                     settingsTab = 1
@@ -470,7 +477,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                             TextButton(onClick = { settingsTab = 0 }) { Text("Back to Settings") }
                             Text("Preview", color = contrastingTextColor(
-                                                            favoriteColors.getOrNull(draftColor)?.second ?: MaterialTheme.colorScheme.onBackground,
+                                                            draftCustomColor?.let { Color(it) } ?: favoriteColors.getOrNull(draftColor)?.second ?: MaterialTheme.colorScheme.onBackground,
                                                             solidBackground
                                                         ),
                                 style = MaterialTheme.typography.headlineSmall,
@@ -490,21 +497,35 @@ class MainActivity : ComponentActivity() {
                             favoriteColors.forEachIndexed { index, (name, color) ->
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     androidx.compose.material3.RadioButton(
-                                        selected = draftColor == index,
+                                        selected = draftCustomColor == null && draftColor == index,
                                         onClick = {
                                             draftColor = index
+                                            draftCustomColor = null
                                         }
                                     )
                                     TextButton(onClick = {
                                         draftColor = index
+                                        draftCustomColor = null
                                     }) { Text(name, color = color ?: MaterialTheme.colorScheme.onBackground) }
                                 }
                             }
+                            CustomColorButton(
+                                color = draftCustomColor?.let { Color(it) }
+                                    ?: favoriteColors.getOrNull(draftColor)?.second
+                                    ?: MaterialTheme.colorScheme.onBackground,
+                                onColorSelected = { draftCustomColor = it.toArgb() }
+                            )
+                            draftCustomColor?.let { Text("Custom: #%06X".format(it and 0xFFFFFF)) }
                             Button(onClick = {
+                                customTextColor = draftCustomColor
                                 textColor = draftColor
                                 fontSize = draftFontSize
                                 preferences.edit().putInt("text_color", textColor)
-                                    .putInt("favorite_font_size", fontSize).apply()
+                                    .putInt("favorite_font_size", fontSize).apply {
+                                                                            val custom = customTextColor
+                                                                            if (custom == null) remove("custom_text_color")
+                                                                            else putInt("custom_text_color", custom)
+                                                                        }.apply()
                                 settingsTab = 0
                             }) { Text("Save text appearance") }
                             launcherBackground.Editor()

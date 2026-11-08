@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
@@ -58,6 +59,11 @@ class LauncherBackground(private val activity: ComponentActivity) {
 
     var savedColor by mutableStateOf(SolidColor.SYSTEM)
         private set
+    var customColor by mutableStateOf<Color?>(null)
+        private set
+    val solidColor: Color?
+        get() = customColor ?: savedColor.color
+
     var hasPhoto by mutableStateOf(false)
         private set
     var busy by mutableStateOf(true)
@@ -75,16 +81,20 @@ class LauncherBackground(private val activity: ComponentActivity) {
             val saved = withContext(Dispatchers.IO) {
                 val color = SolidColor.entries.firstOrNull { it.name == prefs.getString("color", null) }
                     ?: SolidColor.SYSTEM
+                val custom = if (prefs.contains("custom_color")) {
+                    Color(prefs.getInt("custom_color", 0))
+                } else null
                 val name = prefs.getString("photo", null)?.takeIf {
                     it.matches(Regex("photo-[a-f0-9-]+\\.img")) && File(directory, it).isFile
                 }
                 // Only our own directory is touched; recover leftovers from interrupted imports.
                 directory.listFiles()?.filter { it.name != name }?.forEach { it.delete() }
-                color to name
+                Triple(color, custom, name)
             }
             savedColor = saved.first
-            photoName = saved.second
-            hasPhoto = saved.second != null
+            customColor = saved.second
+            photoName = saved.third
+            hasPhoto = saved.third != null
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             error = "Could not load background settings: ${e.message}"
@@ -113,12 +123,14 @@ class LauncherBackground(private val activity: ComponentActivity) {
         }
     }
 
-    fun setColor(color: SolidColor) = saveSolid(color)
+    fun setColor(color: SolidColor) = saveSolid(color, null)
+
+    fun setCustomColor(color: Color) = saveSolid(savedColor, Color(color.toArgb()))
 
     /** Switches back to the saved solid color, deleting the private copy off the main thread. */
-    fun removePicture() = saveSolid(savedColor)
+    fun removePicture() = saveSolid(savedColor, customColor)
 
-    private fun saveSolid(color: SolidColor) {
+    private fun saveSolid(color: SolidColor, custom: Color?) {
         if (busy || pickerOpen) return
         busy = true
         error = null
@@ -128,12 +140,19 @@ class LauncherBackground(private val activity: ComponentActivity) {
                 // Finish persistence and state publication together even if the Activity is destroyed.
                 withContext(NonCancellable) {
                     withContext(Dispatchers.IO) {
-                        check(prefs.edit().putString("color", color.name).remove("photo").commit()) {
+                        val editor = prefs.edit().putString("color", color.name).remove("photo")
+                        if (custom != null) {
+                            editor.putInt("custom_color", custom.toArgb())
+                        } else {
+                            editor.remove("custom_color")
+                        }
+                        check(editor.commit()) {
                             "Could not save background settings"
                         }
                         old?.let { File(directory, it).delete() }
                     }
                     savedColor = color
+                    customColor = custom
                     photoName = null
                     hasPhoto = false
                     bitmap = null
@@ -248,7 +267,7 @@ class LauncherBackground(private val activity: ComponentActivity) {
                 }
             }
         }
-        Box(Modifier.fillMaxSize().background(savedColor.color ?: MaterialTheme.colorScheme.background)) {
+        Box(Modifier.fillMaxSize().background(solidColor ?: MaterialTheme.colorScheme.background)) {
             bitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
@@ -269,9 +288,15 @@ class LauncherBackground(private val activity: ComponentActivity) {
             Text("The background applies to every launcher screen, including Settings and the favorites picker.")
             SolidColor.entries.forEach { color ->
                 TextButton(onClick = { setColor(color) }, enabled = !busy && !pickerOpen) {
-                    Text(color.label + if (!hasPhoto && savedColor == color) " (selected)" else "")
+                    Text(color.label + if (!hasPhoto && customColor == null && savedColor == color) " (selected)" else "")
                 }
             }
+            CustomColorButton(
+                color = solidColor ?: MaterialTheme.colorScheme.background,
+                onColorSelected = ::setCustomColor,
+                enabled = !busy && !pickerOpen
+            )
+            if (!hasPhoto && customColor != null) Text("Custom color (selected)")
             Button(onClick = ::choosePicture, enabled = !busy && !pickerOpen) { Text(if (hasPhoto) "Replace picture (selected)" else "Choose picture") }
             TextButton(onClick = ::removePicture, enabled = hasPhoto && !busy && !pickerOpen) {
                 Text("Remove picture")
